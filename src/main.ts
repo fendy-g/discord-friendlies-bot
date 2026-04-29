@@ -1,5 +1,5 @@
 import { dirname, importx } from "@discordx/importer";
-import { IntentsBitField, type Interaction, type Message } from "discord.js";
+import { GatewayIntentBits, IntentsBitField, Options, type Interaction, type Message } from "discord.js";
 import { Client } from "discordx";
 
 export const bot = new Client({
@@ -14,6 +14,7 @@ export const bot = new Client({
     IntentsBitField.Flags.GuildMessageReactions,
     IntentsBitField.Flags.GuildVoiceStates,
     IntentsBitField.Flags.MessageContent,
+    GatewayIntentBits.GuildPresences,
   ],
 
   // Debug logs are disabled in silent mode
@@ -25,26 +26,31 @@ export const bot = new Client({
   },
 });
 
-bot.once("ready", () => {
+bot.once("ready", async () => {
   // Make sure all guilds are cached
   // await bot.guilds.fetch();
 
   // Synchronize applications commands with Discord
   void bot.initApplicationCommands();
-
+  
   // To clear all guild commands, uncomment this line,
   // This is useful when moving from guild commands to global commands
   // It must only be executed once
   //
-  //  await bot.clearApplicationCommands(
-  //    ...bot.guilds.cache.map((g) => g.id)
-  //  );
-
+  // await bot.clearApplicationCommands(
+  //   ...bot.guilds.cache.map((g) => g.id)
+  // );
+  
   console.log("Bot started");
 });
 
 bot.on("interactionCreate", (interaction: Interaction) => {
-  bot.executeInteraction(interaction);
+  if(interaction.isButton()) {
+    // Logic for confirming from slash command interaction
+  }
+  else if (interaction.isCommand()){
+    bot.executeInteraction(interaction);
+  }
 });
 
 bot.on("messageCreate", (message: Message) => {
