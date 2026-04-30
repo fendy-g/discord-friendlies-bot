@@ -1,0 +1,40 @@
+CREATE TABLE player (
+    playerId int NOT NULL,
+    serverId int NOT NULL,
+    PRIMARY KEY (playerId, serverId)
+)
+
+CREATE TABLE season (
+    id int NOT NULL,
+    serverId int NOT NULL,
+    seasonId int NOT NULL,
+    seasonName varchar(40) NOT NULL,
+    activeSeason boolean,
+    PRIMARY KEY (serverId, seasonId)
+)
+
+// Basically the "weekly" or whatever occurence you run each round for
+CREATE TABLE seasonSet (
+    id int NOT NULL,
+    serverId int NOT NULL,
+    seasonId int NOT NULL,
+    setName varchar NOT NULL,
+    activeSet boolean, 
+    PRIMARY KEY (serverId, seasonId, setName),
+    CONSTRAINT fk_season FOREIGN KEY (serverId, seasonId) REFERENCES season(serverId, seasonId)
+)
+
+CREATE TABLE matchRecord (
+    id int NOT NULL PRIMARY KEY,
+    serverId int NOT NULL,
+    seasonId int NOT NULL,
+    player int NOT NULL,
+    opponent int NOT NULL,
+    winner int,
+    wins int,
+    losses int,
+    CONSTRAINT fk_season FOREIGN KEY (serverId, seasonId) REFERENCES season(serverId, seasonId),
+    CONSTRAINT fk_player FOREIGN KEY (serverId, player) REFERENCES player(serverId, playerId),
+    CONSTRAINT fk_opponent FOREIGN KEY (serverId, opponent) REFERENCES player(serverId, playerId),
+    CONSTRAINT fk_winner FOREIGN KEY (serverId, winner) REFERENCES player(serverId, playerId)
+)
