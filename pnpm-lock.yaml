@@ -17,6 +17,9 @@ importers:
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
+      array-shuffle:
+        specifier: ^4.1.0
+        version: 4.1.0
       discord.js:
         specifier: ^14.22.1
         version: 14.26.3
@@ -26,6 +29,9 @@ importers:
       pg:
         specifier: ^8.20.0
         version: 8.20.0
+      random-seed-weighted-chooser:
+        specifier: ^1.1.11
+        version: 1.1.11
     devDependencies:
       '@types/node':
         specifier: ^24.4.0
@@ -283,6 +289,10 @@ packages:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
 
+  array-shuffle@4.1.0:
+    resolution: {integrity: sha512-VeSwSNI0y9NojZ/seTJujlyO2xQCwdfn5ujU2ji+VaHos2z4u88aqy6nCVIJhmaMTOQvqNyIWwOJ/pSlYjPhTQ==}
+    engines: {node: '>=20'}
+
   balanced-match@4.0.4:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
@@ -499,12 +509,18 @@ packages:
   pstree.remy@1.1.8:
     resolution: {integrity: sha512-77DZwxQmxKnu3aR542U+X8FypNzbfJ+C5XQDk3uWjWxn6151aIMGthWYRXTqT1E5oJvg+ljaa2OJi+VfvCOQ8w==}
 
+  random-seed-weighted-chooser@1.1.11:
+    resolution: {integrity: sha512-5P4OXquIjGFPuURD80CnOXDbJ0FdJXmDXvPcHu9ePXG/2GtoZe9grRyG7S0Ea4mNAnBK6vaj8e1R2+7tYBU3Zw==}
+
   readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
+
+  seedrandom@3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
 
   semver@7.7.4:
     resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
@@ -779,6 +795,8 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 2.3.2
 
+  array-shuffle@4.1.0: {}
+
   balanced-match@4.0.4: {}
 
   binary-extensions@2.3.0: {}
@@ -1016,11 +1034,17 @@ snapshots:
 
   pstree.remy@1.1.8: {}
 
+  random-seed-weighted-chooser@1.1.11:
+    dependencies:
+      seedrandom: 3.0.5
+
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.2
 
   resolve-pkg-maps@1.0.0: {}
+
+  seedrandom@3.0.5: {}
 
   semver@7.7.4: {}
 

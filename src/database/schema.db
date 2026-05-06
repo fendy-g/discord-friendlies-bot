@@ -1,6 +1,7 @@
 CREATE TABLE player (
     playerId bigint NOT NULL,
     serverId bigint NOT NULL,
+    playerName varchar(40),
     PRIMARY KEY (playerId, serverId)
 );
 
@@ -17,14 +18,14 @@ CREATE TABLE season (
 CREATE TABLE seasonSet (
     id serial PRIMARY KEY,
     serverId bigint NOT NULL,
-    seasonId int NOT NULL,
+    seasonId serial NOT NULL,
     setName varchar NOT NULL,
     activeSet boolean, 
     CONSTRAINT fk_season FOREIGN KEY (seasonId) REFERENCES season(id)
 );
 
 CREATE TABLE matchRecord (
-    id int NOT NULL PRIMARY KEY,
+    id serial PRIMARY KEY,
     serverId bigint NOT NULL,
     seasonSetId int NOT NULL,
     player bigint NOT NULL,
@@ -37,3 +38,18 @@ CREATE TABLE matchRecord (
     CONSTRAINT fk_opponent FOREIGN KEY (serverId, opponent) REFERENCES player(serverId, playerId),
     CONSTRAINT fk_winner FOREIGN KEY (serverId, winner) REFERENCES player(serverId, playerId)
 );
+
+
+SELECT 
+    ss.setName,
+    p1.playerName as player, 
+    p2.playerName as opponent,
+    p3.playerName as winner,
+    mr.wins,
+    mr.losses
+FROM matchRecord mr
+LEFT JOIN player p1 on mr.player = p1.playerId
+LEFT JOIN player p2 on mr.opponent = p2.playerId
+LEFT OUTER JOIN player p3 on mr.winner = p3.playerId
+LEFT JOIN seasonSet ss on ss.id = mr.seasonSetId
+ORDER BY ss.setName;
