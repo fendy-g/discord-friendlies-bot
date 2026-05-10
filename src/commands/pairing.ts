@@ -1,4 +1,4 @@
-import { GuildMember, PermissionsBitField, type CommandInteraction } from "discord.js";
+import { GuildMember, PermissionsBitField, TextChannel, type CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { closePreviousSeasonSet, createMatches, createSeasonSet, getAllPlayerMatches } from "../database/db";
 import { weightedShuffle } from "../utils/weightedShuffle";
@@ -108,7 +108,8 @@ export class Pairings {
         const seasonRoundId = await createSeasonSet(serverId, nextWeekNumber);
 
         const category = (await interaction.guild?.channels.fetch())?.find(c => c.name === "friendlies-matchmaking");
-        interaction.editReply(pairingsSet.map((p) => p.length === 2 ? `<@${p[0].id}> vs <@${p[1].id}>` : `<@${p[0].id}> will have a bye due to no pairing.`).join("\n"));
+        (interaction.guild?.channels.cache.find(c => c.name === 'friendlies-pairings') as TextChannel)
+            .send(pairingsSet.map((p) => p.length === 2 ? `<@${p[0].id}> vs <@${p[1].id}>` : `<@${p[0].id}> will have a bye due to no pairing.`).join("\n"));
         await createMatches(serverId, seasonRoundId, pairingsSet.filter(ps => ps.length === 2));
         // pairingsSet.forEach(async ps => {
         //     if (ps.length === 2) {
@@ -131,5 +132,6 @@ export class Pairings {
         //         });
         //     }
         // });
+        interaction.editReply("Pairings have been posted.");
     }
 }

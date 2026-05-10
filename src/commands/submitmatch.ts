@@ -74,18 +74,18 @@ export class SubmitMatch {
         const wins = Number(interaction.fields.getStringSelectValues('winCount')[0]);
         const losses = Number(interaction.fields.getStringSelectValues('lossCount')[0]);
         //const currentChannel = await interaction.guild?.channels.fetch(interaction.channelId);
-        console.log("setname:", setname);
-        console.log('opponent:', opponent);
-        console.log('winner:', winner);
-        console.log('wins:', wins);
-        console.log('losses:', losses);
+        // console.log("setname:", setname);
+        // console.log('opponent:', opponent);
+        // console.log('winner:', winner);
+        // console.log('wins:', wins);
+        // console.log('losses:', losses);
         //friendlies-results
         await submitMatchResult(interaction.guild?.id, setname, interaction.user.id, opponent, winner, wins, losses);
         await submitMatchResult(interaction.guild?.id, setname, opponent, interaction.user.id, winner, losses, wins);
         if (winner === opponent) {
-            (interaction.guild?.channels.cache.find(c => c.name === 'bot-testing') as TextChannel).send(`<@${winner}> won against <@${interaction.user.id}> with a score of ${losses}-${wins}`);
+            (interaction.guild?.channels.cache.find(c => c.name === 'friendlies-results') as TextChannel).send(`<@${winner}> won against <@${interaction.user.id}> with a score of ${losses}-${wins}`);
         } else {
-            (interaction.guild?.channels.cache.find(c => c.name === 'bot-testing') as TextChannel).send(`<@${winner}> won against <@${opponent}> with a score of ${wins}-${losses}`);
+            (interaction.guild?.channels.cache.find(c => c.name === 'friendlies-results') as TextChannel).send(`<@${winner}> won against <@${opponent}> with a score of ${wins}-${losses}`);
         }
         await interaction.reply("Your match has been recorded");
         return;
