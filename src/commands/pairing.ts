@@ -1,6 +1,6 @@
 import { GuildMember, PermissionsBitField, type CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { getAllPlayerMatches } from "../database/db";
+import { closePreviousSeasonSet, createMatches, createSeasonSet, getAllPlayerMatches } from "../database/db";
 import { weightedShuffle } from "../utils/weightedShuffle";
 import { arrayShuffle } from 'array-shuffle';
 
@@ -46,6 +46,7 @@ export class Pairings {
         await interaction.deferReply();
         await interaction.editReply("Calculating...");
         await interaction.guild?.roles.fetch();
+        const serverId = interaction.guild?.id;
         const historicMatchRecords = await getAllPlayerMatches(interaction.guildId!);
         const roles = await interaction.guild?.roles.fetch(undefined, { force: true });
         const friendliesRole = roles?.find(r => r.name === "Friendlies");
@@ -59,6 +60,7 @@ export class Pairings {
             return;
         }
         const nextWeekNumber = Number(historicMatchRecords.sort((r1, r2) => r1.setname < r2.setname ? -1 : r1.setname > r2.setname ? 1 : 0)?.pop()?.setname ?? 0) + 1;
+        await closePreviousSeasonSet(serverId, nextWeekNumber);
         const eligiblePlayers = friendliesRole?.members.map(m => {
             return {
                 player: m,
@@ -102,29 +104,32 @@ export class Pairings {
             pairingsSet.push([eligiblePlayers.pop()?.player]);
         }
 
+        //create new season round
+        const seasonRoundId = await createSeasonSet(serverId, nextWeekNumber);
+
         const category = (await interaction.guild?.channels.fetch())?.find(c => c.name === "friendlies-matchmaking");
         interaction.editReply(pairingsSet.map((p) => p.length === 2 ? `<@${p[0].id}> vs <@${p[1].id}>` : `<@${p[0].id}> will have a bye due to no pairing.`).join("\n"));
-        const test = pairingsSet.slice(0, 2)
-        test.forEach(async ps => {
-            if (ps.length === 2) {
-                await interaction.guild?.channels.create({
-                    parent: category?.id,
-                    name: `${ps[0].user.username}-${ps[1].user.username}---${nextWeekNumber}`,
-                    permissionOverwrites: [{ // disallow everyone to see the channel
-                        id: interaction.guild.id,
-                        deny: [PermissionsBitField.Flags.ViewChannel],
-                    },
-                    { // allow the user to see the channel
-                        id: ps[0].id,
-                        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-                    },
-                    { // allow the user to see the channel
-                        id: ps[1].id,
-                        allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
-                    },
-                    ]
-                });
-            }
-        });
+        await createMatches(serverId, seasonRoundId, pairingsSet.filter(ps => ps.length === 2));
+        // pairingsSet.forEach(async ps => {
+        //     if (ps.length === 2) {
+        //         await interaction.guild?.channels.create({
+        //             parent: category?.id,
+        //             name: `${ps[0].user.username}-${ps[1].user.username}---${nextWeekNumber}`,
+        //             permissionOverwrites: [{ // disallow everyone to see the channel
+        //                 id: interaction.guild.id,
+        //                 deny: [PermissionsBitField.Flags.ViewChannel],
+        //             },
+        //             { // allow the user to see the channel
+        //                 id: ps[0].id,
+        //                 allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+        //             },
+        //             { // allow the user to see the channel
+        //                 id: ps[1].id,
+        //                 allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages],
+        //             },
+        //             ]
+        //         });
+        //     }
+        // });
     }
 }

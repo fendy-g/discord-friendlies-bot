@@ -32,7 +32,7 @@ bot.once("ready", async () => {
 
   // Synchronize applications commands with Discord
   void bot.initApplicationCommands();
-  
+
   // To clear all guild commands, uncomment this line,
   // This is useful when moving from guild commands to global commands
   // It must only be executed once
@@ -40,17 +40,12 @@ bot.once("ready", async () => {
   // await bot.clearApplicationCommands(
   //   ...bot.guilds.cache.map((g) => g.id)
   // );
-  
+
   console.log("Bot started");
 });
 
 bot.on("interactionCreate", (interaction: Interaction) => {
-  if(interaction.isButton()) {
-    // Logic for confirming from slash command interaction
-  }
-  else if (interaction.isCommand()){
-    bot.executeInteraction(interaction);
-  }
+  bot.executeInteraction(interaction);
 });
 
 bot.on("messageCreate", (message: Message) => {
