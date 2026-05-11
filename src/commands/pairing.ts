@@ -1,4 +1,4 @@
-import { GuildMember, PermissionsBitField, TextChannel, type CommandInteraction } from "discord.js";
+import { Collection, GuildMember, PermissionsBitField, Role, Snowflake, TextChannel, type CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { closePreviousSeasonSet, createMatches, createSeasonSet, getAllPlayerMatches, updatePlayerbase } from "../database/db";
 import { weightedShuffle } from "../utils/weightedShuffle";
@@ -48,8 +48,7 @@ export class Pairings {
         await interaction.guild?.roles.fetch();
         const serverId = interaction.guild?.id;
         const historicMatchRecords = await getAllPlayerMatches(interaction.guildId!);
-        const roles = await interaction.guild?.roles.fetch(undefined, { force: true });
-        const friendliesRole = roles?.find(r => r.name === "Friendlies");
+        const friendliesRole = interaction.guild?.roles.cache.find(r => r.name === "Friendlies");
         if (!friendliesRole) {
             // console.log("Please create the necessary role");
             interaction.editReply("Please create the necessary 'Friendlies' role");
@@ -77,7 +76,7 @@ export class Pairings {
         const nextPairings: { player: string, opponent: string }[] = [];
         console.log("players to pair:", eligiblePlayers.length);
         const pairingsSet: GuildMember[][] = [];
-        let user;
+        let user: Eligible;
         do {
             user = eligiblePlayers.pop();
             if (nextPairings.some(np => np.player === user.player.id || np.opponent === user.player.id)) {
@@ -110,7 +109,7 @@ export class Pairings {
 
         const category = (await interaction.guild?.channels.fetch())?.find(c => c.name === "friendlies-matchmaking");
         (interaction.guild?.channels.cache.find(c => c.name === 'friendlies-pairings') as TextChannel)
-            .send(pairingsSet.map((p) => p.length === 2 ? `<@${p[0].id}> vs <@${p[1].id}>` : `<@${p[0].id}> will have a bye due to no pairing.`).join("\n"));
+            .send(`Here are week ${nextWeekNumber} pairings!\n\n` + pairingsSet.map((p) => p.length === 2 ? `<@${p[0].id}> vs <@${p[1].id}>` : `<@${p[0].id}> will have a bye due to no pairing.`).join("\n"));
         await createMatches(serverId, seasonRoundId, pairingsSet.filter(ps => ps.length === 2));
         // pairingsSet.forEach(async ps => {
         //     if (ps.length === 2) {

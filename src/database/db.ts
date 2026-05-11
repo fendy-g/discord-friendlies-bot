@@ -1,15 +1,7 @@
 import { Client } from "pg";
 import { format } from '@scaleleap/pg-format'
 import { GuildMember } from "discord.js";
-// var pg = require('pg');
-// require('pg-essential').patch(pg);
-
-// Get players
-// Players with historic pairs (to prevent consecutive repeats)
-// Leaderboard
-// Add season
-// Add week
-// Add user weekly record
+// import dotenv from 'dotenv'; 
 
 export const getPlayers = async (serverId: number) => {
     const client = await new Client().connect();
@@ -21,9 +13,21 @@ type MatchRecord = {
     setname: string, player: string, opponent: string
 };
 
+const createClient = () => {
+    const apiKey = process.env.REACT_APP_MY_API_KEY;
+    const client = new Client({
+        user: process.env.user,
+        password: process.env.password,
+        host: process.env.host,
+        port: Number(process.env.port),
+        database: process.env.database,
+    });
+    return client;
+}
+
 export const updatePlayerbase = async (serverId: string, players: GuildMember[]) => {
     const insert = players.map(player => [serverId, player.id, player.user.username]);
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     const query = format(`
         INSERT INTO PLAYER (serverId, playerId, playerName)
         VALUES %L
@@ -35,7 +39,7 @@ export const updatePlayerbase = async (serverId: string, players: GuildMember[])
 }
 
 export const getMatches = async (serverId: string, playerId: string) => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     const res = await client.query<{ playerid: string, opponentid: string, setname: string }>(`
         SELECT player as playerId, opponent as opponentId, ss.setname
         FROM matchRecord mr
@@ -46,7 +50,7 @@ export const getMatches = async (serverId: string, playerId: string) => {
 };
 
 export const getOpenMatches = async (serverId: string) => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     const res = await client.query<{ playerid: string, opponentid: string, setname: string }>(`
         SELECT player as playerid, opponent as opponentid, ss.setname
         FROM matchRecord mr
@@ -57,7 +61,7 @@ export const getOpenMatches = async (serverId: string) => {
 }
 
 export const submitMatchResult = async (serverId: string, setNumber: string, playerId: string, opponentId: string, winner: string, wins: number, losses: number) => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     await client.query(`
         UPDATE matchRecord AS mr
         SET wins = $1, losses = $2, winner = $3
@@ -69,7 +73,7 @@ export const submitMatchResult = async (serverId: string, setNumber: string, pla
 };
 
 export const getAllPlayerMatches = async (serverId: string): Promise<MatchRecord[]> => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     const res = await client.query<MatchRecord>(`
                 SELECT 
             ss.setName,
@@ -93,14 +97,14 @@ export const closePreviousSeasonSet = async (serverId: string, seasonRound: numb
     await client.end();
 }
 export const createSeasonSet = async (serverId: string, seasonRound: number): Promise<number> => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     const result = await client.query("insert into seasonset (serverId, seasonId, setName, activeSet) select serverId, id, $1, true from season where serverId = $2 ON CONFLICT (seasonId, setName) DO UPDATE SET activeSet = true RETURNING id", [seasonRound, serverId]);
     await client.end();
     return result.rows[0].id;
 };
 
 export const createMatches = async (serverId: string, seasonSetId: number, matches: GuildMember[][]) => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     // client.executeBulkInsertion([], [], '');
     const batchData = matches.map(match =>
         [
