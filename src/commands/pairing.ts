@@ -1,6 +1,6 @@
 import { GuildMember, PermissionsBitField, TextChannel, type CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { closePreviousSeasonSet, createMatches, createSeasonSet, getAllPlayerMatches } from "../database/db";
+import { closePreviousSeasonSet, createMatches, createSeasonSet, getAllPlayerMatches, updatePlayerbase } from "../database/db";
 import { weightedShuffle } from "../utils/weightedShuffle";
 import { arrayShuffle } from 'array-shuffle';
 
@@ -59,6 +59,7 @@ export class Pairings {
             interaction.editReply("Please have more than 2 members in the role");
             return;
         }
+        await updatePlayerbase(serverId, friendliesRole?.members);
         const nextWeekNumber = Number(historicMatchRecords.sort((r1, r2) => r1.setname < r2.setname ? -1 : r1.setname > r2.setname ? 1 : 0)?.pop()?.setname ?? 0) + 1;
         await closePreviousSeasonSet(serverId, nextWeekNumber);
         const eligiblePlayers = friendliesRole?.members.map(m => {
