@@ -58,7 +58,7 @@ export class Pairings {
             interaction.editReply("Please have more than 2 members in the role");
             return;
         }
-        await updatePlayerbase(serverId, friendliesRole?.members);
+        await updatePlayerbase(serverId, friendliesRole?.members.map(member => member));
         const nextWeekNumber = Number(historicMatchRecords.sort((r1, r2) => r1.setname < r2.setname ? -1 : r1.setname > r2.setname ? 1 : 0)?.pop()?.setname ?? 0) + 1;
         await closePreviousSeasonSet(serverId, nextWeekNumber);
         const eligiblePlayers = friendliesRole?.members.map(m => {

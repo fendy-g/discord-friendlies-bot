@@ -1,7 +1,6 @@
 import { Client } from "pg";
 import { format } from '@scaleleap/pg-format'
 import { GuildMember } from "discord.js";
-// import dotenv from 'dotenv'; 
 
 export const getPlayers = async (serverId: number) => {
     const client = await new Client().connect();
@@ -14,7 +13,6 @@ type MatchRecord = {
 };
 
 const createClient = () => {
-    const apiKey = process.env.REACT_APP_MY_API_KEY;
     const client = new Client({
         user: process.env.user,
         password: process.env.password,
@@ -92,7 +90,7 @@ export const getAllPlayerMatches = async (serverId: string): Promise<MatchRecord
 };
 
 export const closePreviousSeasonSet = async (serverId: string, seasonRound: number) => {
-    const client = await new Client().connect();
+    const client = await createClient().connect();
     const result = await client.query('update seasonset set activeSet = false where serverId = $1 and setName = $2', [serverId, String(seasonRound - 1)]);
     await client.end();
 }
