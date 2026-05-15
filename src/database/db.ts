@@ -114,4 +114,35 @@ export const createMatches = async (serverId: string, seasonSetId: number, match
     await client.query(query);
     await client.end();
 
+};
+
+export const getLeaderboard = async (serverId: string) => {
+    const client = await createClient().connect();
+    const result = await client.query(`
+    select player, points, wins, losses, 
+        rank() over (order by points desc, wins desc, losses asc) rank,
+    from (
+        select player, 
+        sum(case when winner = player then 3 else 1 end) as points, 
+        sum(wins) as wins,
+        sum(losses) as losses
+        from matchRecord 
+        where winner is not null
+        group by player
+    )`);
+    await client.end();
+    return result.rows;
+}
+
+export const getPastRecords = async (serverId: string, playerId: string) => {
+    const client = await createClient().connect();
+    const result = await client.query<{ setname: string, opponent: string, winner: string, wins: number, losses: number }>(`        
+        select ss.setname, mr.opponent, mr.winner, mr.wins, mr.losses
+        from season s
+        join seasonset ss on s.id = ss.seasonid
+        join matchRecord mr on ss.id = mr.seasonsetid
+        where s.activeSeason = true and s.serverid = $1 and mr.player = $2;
+    `, [serverId, playerId]);
+    await client.end();
+    return result.rows;
 }
